@@ -1,2 +1,2 @@
-# Veri-Yap-lar-
+# VeriYapilari
 C++ ile veri yapıları
