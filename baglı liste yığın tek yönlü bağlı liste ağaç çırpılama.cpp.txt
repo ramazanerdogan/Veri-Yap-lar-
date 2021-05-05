@@ -1,0 +1,494 @@
+// Bu kod "https://repl.it/languages/cpp" online derleyicisi ile çalıştırılmıştır. 
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include<string>
+#include <vector>//vektör tanımlaması için kullanılan kütüphane.
+#include <algorithm>//porgrmada kullanılan bazı kütüphaneler
+using namespace std;//fonksiyonlar kullanılması için yazılan kütüphaneler
+std::vector<int> agac;//agac adında bir vektör tanımladık
+std::vector<int> ints;//hash tablosu için vektör tanımladık.
+const int MAX=10;//hash tablosu için max isimli değişken tanımladık ve sabit değer atadık.
+string anamenu = "Yapmak Istediginiz Uygulamayi Seciniz:\n 1-Yigin Uygulamasi\n 2-Kuyruk Uygulamasi\n 3-Tek Yonlu Bagli Liste\n 4-İkili Ağaç Uygulaması\n 5-Çırpılama Uygulaması\n 6-ÇIKIŞ";// çıktı olarak istediğimiz metini yazdık
+class IkiliAgac//ağaç adında bir sınıf tanımlıyoruz.
+{
+  public:
+    struct Agacdugum//struct tanımı yapıyoruz
+    {
+        int deger;
+        Agacdugum *sol;// sol adında pointer tanımını yapıyoruz.
+        Agacdugum *sag;// sol adında pointer tanımını yapıyoruz.
+    };
+    Agacdugum *kok;//struct yapısından kok adında pointer tanımı yapıyoruz.
+    IkiliAgac() //kurucu
+    {
+      kok = NULL;//kok değerine null değerini atıyoruz
+    }
+    void dugumEkle(int);//foksiyonun tanımını yaptık
+    //Ağaçta dolaşmak için gerekli fonksiyonlar
+    void InOrderDolasim(Agacdugum *dugumPtr);//İnOrderDolasım fonksiyonun tanımlama işlemini yaptık.
+    void PreOrderDolasim(Agacdugum *dugumPtr);//preorder halinde değerleri çağırmak için fonksiyonun tanımlama işlemini yaptık.
+    void PostOrderDolasim(Agacdugum *dugumPtr);//postorder halinde değerleri çağırmak için fonksiyonun tanımlama işlemini yaptık.
+ //Düğümleri göstermek için fonksiyonlar
+    void InOrderDugumGoster() //inorder fonsiyonunu yazdırmak için fonksiyon tanımı yaptık.
+    { InOrderDolasim(kok);}//kök değeri dolaşım için ınorder fonsiyonuna atanıyor.
+    void PreOrderDugumGoster()//preorder fonsiyonunu yazdırmak için fonksiyon tanımı yaptık.
+    { PreOrderDolasim(kok);}//kök değeri dolaşım için preorder fonsiyonuna atanıyor.
+    void PostOrderDugumGoster()//postorder fonsiyonunu yazdırmak için fonksiyon tanımı yaptık.
+    { PostOrderDolasim(kok);} ////kök değeri dolaşım için postorder fonsiyonuna atanıyor.
+    bool DugumAra(int sayi); //dugumara fonksiyonu tanımı yapıldı.
+    void Sil(int sayi); //silmek için sil fonksiyonu tanımı yapıldı.
+	//sil isimli fonksiyon silinecek değeri ve kokü DugumSil isimli fonksiyona geçirsin
+    void DugumSil(int, Agacdugum *&);
+	//biz bu fonksiyonu sileceğimiz düğüme ulaşmak için kullanacağız
+	//bir düğüm silindiğinde alt ağacı bağlayacağımız için sadece 
+	//Agacdugüm tipinde bir işaretçi değil, 
+	//bu yapıyı tutan işaretçinin adresine işaret ediyoruz
+
+    void GercekleSil(Agacdugum *&);////düğümü ortadan kaldırıp alt ağacı bağlayacak
+};
+class Dugum//Dugum adında sınıf tanımı yapıyoruz
+{
+public:
+  int Anahtar;//int tipinde değişken tanımlıyoruz.
+  Dugum* pSonraki;// dugum tipinde pointer tanımı yapıyoruz
+  Dugum(int Anahtar)//dugum adında bir fonksiyon tanımı yapıyoruz.
+  {
+  this->Anahtar=Anahtar;//this komutu ile eşitleme yapıyoruz.
+  pSonraki=NULL;//psonraki Null değerini atıyoruz.
+  }
+};
+class HashTablo//hashTablo adında sınıf tanımlaması yapıyoruz.
+{
+public:
+Dugum* Veri[MAX];//veri adında pointer dizi tanımlıyoruz ve MAX= OLDUĞU İÇİN 10 elemanlı bir dizi tanımlamış oluyoruz.
+HashTablo();//foksiyon tanımı yapıyoruz.
+void Ekle(int Anahtar);//değerleri eklemek için ekle adında fonksiyon tanımı yapıyoruz.
+Dugum*  Bul(int Anahtar);//Dugum tipinde bul adında pointer bir fonksiyon tanımı yapıyoruz.
+void Sil(int Anahtar);//değer silmek için sil adında fonskiyon tanımı yapıyoruz.
+};
+int sayac=0;//Ağaçta kaç eleman olduğunu öğrenmek için sayaç adında bir değişken tanımı yapıyoruz.
+int main()// main fonksiyonuna giriş
+{   IkiliAgac deger;//Ağaç sınıfından deger adında bir nesne tanımlıyoruz.
+    HashTablo hashNesne;//hashtablo sınısıfından nesne tanımı yapıyoruz.
+    
+    int hashSayac=0;//Tabloda kaç eleman olduğunu öğrenmek için sayaç adında bir değişken tanımı yapıyoruz.
+    do {//döngü girişi
+
+      cout << "***************************************" << endl;
+        cout << anamenu << endl;
+      cout << "***************************************" << endl;
+      //anamenüyü yazdırdık 3 satırda.
+        char secim;//karakter tipinde değişken oluşturdukk.
+        cout << "secim:";
+        cin >> secim;//seçimi kullanıcıdan aldık ve yazdırdık.
+
+        switch (secim)//karar vermek için seçimimizi switch yapısına verdik.
+        {
+        case '1'://biri seçersek         
+            break;// döngüden çık.
+        case '2':// 2 ise gir.    
+            break;
+        case '3':           
+            break;//döngüden çık.
+        case '4'://ikili ağaç seçimi için girilecek alaln
+             cout << "İKİLİ AĞAÇ UYGULAMASI" << endl;//yazılacak      
+              do{//döngü giriş
+               cout << "***************************************" << endl;
+                cout << "İkili ağaç uygulaması için seçin:" << endl;
+                cout << "1-Ağaca Eleman Ekle" << endl;
+                cout << "2-Ağaçtan eleman Eleman sil" << endl;
+                cout << "3-Ağacı Temizle" << endl;
+                cout << "4-Listedeki Eleman Sayisini Goster" << endl;
+                cout << "5-Ağacı İnOrder dolaşarak Elemanları göster" << endl;
+                cout << "6-Ağacı PreOrder dolaşarak Elemanları göster" << endl;
+                cout << "7-Ağacı PostOrder dolaşarak Elemanları göster" << endl;
+                cout << "8-Ana Menuye Geri Don" << endl;//case'lerin  açıklamalrını tek tek yazdırdık
+                cout << "***************************************" << endl;
+                char islem;//karakter tipinde islem değişkeni.
+                cout << "islem:";
+                cin >> islem;//değişkeni kullanıcıdan aldık ve yazdırdık.
+                cout << "***************************************" << endl;
+                switch (islem)//girilen işleme göre switch case işlemi uygulacak
+                {
+                case'1'://1 i seçersek
+                {         
+                    int eklenecek;//int tipinde değişken oluşturduk.
+                    cout << "Eklenecek Elemani Giriniz:";
+                    cin >> eklenecek;//kullanıcıdan eklenecek elemenı aldık ve yazdırdık.
+                    deger.dugumEkle(eklenecek);//ekleme fonksiyonunu çağırdık ve degeri yazdık.
+                    sayac++;//sayacı arttırdık kaç tane eleman eklediğimizi bulmak için
+                    agac.push_back(eklenecek);//degerimizi tanımladığımız vektöre attık
+                    cout << eklenecek << " " << "" << endl;//eklendi mesajını verdik         
+                }
+                break;//döngüden çık.
+
+                case'2'://2 yi seçersek.
+                {
+                    int sayi;//int tipinde sayi tanımladık
+                    cout << "Silinecek Elemani Giriniz:";
+                    cin >> sayi;//sayıyı kullanıcadan aldık
+                    if(deger.DugumAra(sayi))//kullanıcı tarafından girilen sayıyı bulmaya çalışık
+                    {
+                      deger.Sil(sayi);//girilen sayiyi sil fonsiyonu yardımı ile sildik
+                      sayac--;//sayı silindiği için toplam eleman sayısı azaldığı için sayac değerinide azalttık.
+                      cout << sayi << " " << "degeri silinmiştir" << 
+                      endl;//eklendi mesajını verdik
+                    }
+                    else{
+                      cout << sayi << " " << "degeri mevcut değil" << endl;//elamanın olmadıpı mesajını verdik
+                    }
+                }
+                break;// döngüden çık.
+                case'3'://3 ü seçersek.
+                {          
+                   
+                    for(int k=0;k<agac.size();k++)//burada ekledğimiz elemanları vektöre atamıştık şimdi ise atadığımız vektör yardımı ile tüm elemanları for ile siliyoruz
+                    {
+                    if(deger.DugumAra(agac[k]))//tüm elemanları vaar olup olmadığını sorguluyoruz.
+                    {
+                      deger.Sil(agac[k]);     //eğr eleman varsa değeri siliyoruz          
+                      sayac--;//toplam eleman sayısı azaldığı için sayacı bir eksiltiyoruz.
+                    }  
+                    }
+                     
+                  cout << "Listenin Tamami Silindi" << endl;//silindi mesajını ekrana yazdırıyoruz.
+                }
+                    break;// döngüden çık.
+
+                case'4'://4 ü seçersek.6
+                {
+                    
+                   cout << sayac << " " << "eleman vardır" << endl;//genel değişken sayacı ekrana yazarak eleman sayısını öğreniyoruz.
+                }
+                break;// döngüden çık.
+                case'5'://5 i seçersek.
+                {
+                    cout<<"InOrder Dolasim:"<<endl;
+                    deger.InOrderDugumGoster();//inorder methodu yardımı ile eklenen elemanları yazdırıyoruz.
+                }
+                break;//döngüden çık.
+                case'6'://6 i seçersek.
+                {
+                    cout<<"PreOrder Dolasim:"<<endl;
+                    deger.PreOrderDugumGoster();//preOrder methodu yardımı ile eklenen elemanları yazdırıyoruz.
+                }
+                break;//döngüden çık.
+                case'7'://7 i seçersek.
+                {
+                    cout<<"PostOrder Dolasim:"<<endl;
+                    deger.PostOrderDugumGoster();//Postorder methodu yardımı ile eklenen elemanları yazdırıyoruz.
+                }
+                break;//döngüden çık.
+                case'8'://8 ya gir.
+                    break;// döngüden çık
+                }
+                if (islem == '8')break;// eğer işlem 8 ise döngüden çık.
+            } while (true);//sonsuz döngü.         
+                break;// döngüden çık.
+        case '5':
+             cout << "ÇIRPILAMA (HASH TABLOSU) UYGULAMASI" << endl;//yazılacak
+               do{//döngü girişi
+
+               cout << "***************************************" << endl;
+                cout << "Çırpılama (hash tablosu) uygulaması için seçin:" << endl;
+                cout << "1-Tabloya Eleman Ekle" << endl;
+                cout << "2-Tablodan eleman Eleman sil" << endl;
+                cout << "3-Tabloyu Temizle" << endl;
+                cout << "4-Tablodaki Eleman Sayisini Goster" << endl;
+                cout << "5-Tablodaki Elemanları göster" << endl;
+                cout << "6-Ana Menuye Geri Don" << endl;// uygulama adımlarını ekrana yazdırıyoruz.
+                cout << "***************************************" << endl;
+                char islem;//karakter tipinde islem değişkeni.
+                cout << "islem:";
+                cin >> islem;//değişkeni kullanıcıdan aldık ve yazdırdık.
+                cout << "***************************************" << endl;
+                switch (islem)//girilen işleme göre switch case işlemi uygulacak
+                {
+                case'1'://1 i seçersek
+                {
+                    int eklenecek;//int tipinde değişken oluşturduk.
+                    cout << "Eklenecek Elemani Giriniz:";
+                    cin >> eklenecek;//kullanıcıdan eklenecek elemenı aldık ve yazdırdık.
+                    hashNesne.Ekle(eklenecek);//ekle fonksiyonu yardımı ile değeri ekledik
+                    hashSayac++;///sayacı arttırdık kaç tane eleman eklediğimizi bulmak için.
+                    ints.push_back(eklenecek);//degerimizi tanımladığımız vektöre attık.
+                    cout << eklenecek << " " << "elemani tabloya eklendi" << endl;//eklendi mesajını verdik
+                }
+                break;//döngüden çık.
+
+                case'2'://2 yi seçersek.
+                {
+                    int sayi;//int tipinde değişken oluşturduk
+                    cout << "Silinecek Elemani Giriniz:";
+                    cin >> sayi;//kullanıcıdan girilecek sayıyı aldık
+                    for(int a=0;a<ints.size();a++)
+                    {
+                      if(sayi==ints[a])
+                      {
+                          hashNesne.Sil(sayi);// Sil yardımı ile girilen sayıyı sildik.
+                          hashSayac--;//toplam eleman sayısı azaldığı için sayac değerini azalttık.
+                          cout << sayi << " " << "elemani tablodan silindi." << endl;//silindi mesajını verdik
+                          ints.erase( ints.begin() + a );//seçili değeri vectorden sildik  
+                      }
+                    }
+                }
+                break;// döngüden çık.
+                case'3'://3 ü seçersek.
+                {          
+                     for(int s=0;s<ints.size();s++)//vektöre eklediğimiz sayıların uzunluğu yani adedi kadar dönen bir döngü kurarak tüm elemanları sil yardımı ile sileceğiz.
+                     {
+                       hashNesne.Sil(ints[s]);//indis yardımı ile tüm elemanları siliyoruz.
+                       hashSayac=0;////tüm elemanları silineceği için toplam eleman sayısı sıfır oluyor
+                       ints.clear();//vektördeki tüm değerleride temizliyoruz.
+                     }
+                      cout << "Listenin Tamami Silindi" << endl;
+                }
+                break;// döngüden çık.
+                case'4'://4 ü seçersek.
+                { 
+                    cout << hashSayac << " " << "eleman mevcuttur." << endl;//sayac genel değişkeni yazdırırak kaç adet elemanın var olduğunu öğreniyoruz. 
+                }
+                break;// döngüden çık.
+                case'5'://5 i seçersek.
+                {      
+                for(int j=0;j<ints.size();j++)//vektöre eklediğimiz sayıların uzunluğu yani adedi kadar dönen bir döngü kurarak tüm elemanları yazdıracağız.
+                {
+                  if(ints[j]%10==ints[j+1]%10)//değerlerin karşılaştırması yapılıyor eğer bir önceki değerin modu ile eşitse değer direk yazılıyor 
+                  {
+                       cout << ints[j] << "" << "" << endl;
+                  }
+                  else //durum gerçekleşmese ilk sayı için arama işlemi yapılıp değer yazılıyor.
+                  {
+                      Dugum* pTemp=hashNesne.Bul(ints[j]);//Bul yardımı ile sayıyı buluyoruz
+  
+                 while(pTemp!=NULL)//pTemp boş olana kadar değeri yazdırıyoruz
+                    {
+                      cout<<pTemp->Anahtar<<endl;//anahtar kısmını yani değeri yazdırıyoruz.
+                      pTemp=pTemp->pSonraki;//adresi pTemp değişkenine atıyoruz.
+                    }
+                  }
+                }
+                }
+                break;//döngüden çık.
+                case'6'://6 ya gir.
+                    break;// döngüden çık
+                }
+                if (islem == '6')break;// eğer işlem 6 ise döngüden çık.
+            } while (true);//sonsuz döngü.         
+                break;// döngüden çık.
+        case '6'://6 ise gir.        
+            cout << "Programdan cikiliyor..." << endl;
+         //programdan çıkılıyor mesajını ekrana yazdırdık.
+            return 0;//programdan çıkma komutu.
+        }
+    } while (true);// sonsuz döngü.
+}
+void IkiliAgac::dugumEkle(int sayi)//ağaca eleman eklemek için foksiyonun içini dolduruyoruz.
+{
+  Agacdugum *yenidugum,//yeni düğümü işaret edecek 
+            *dugumPtr; //ağacı dolaşacak (önceden pBas ile dolaşmıştık
+  yenidugum = new Agacdugum;//structdan yenidugum şeklinde bir tanımlama yapıyoruz.
+  yenidugum->deger = sayi;//sayıyı yenidugumun degerine atıyoruz.
+  yenidugum->sol = yenidugum->sag = NULL; //null değerine eşitliyoruz sol ve sağ dugumleri.
+
+  if(!kok)//ağaç boş mu?, boşsa:
+    kok = yenidugum;//yenidugum degerini kok'e eşitliyoruz
+  else
+  { //kök'ün adresini ağacı dolaşacak işaretçiye atayalım
+    dugumPtr = kok;//dugumptr ye kok değerini atıyoruz.
+    while(dugumPtr != NULL) //ağaçta düğüm bulunduğu sürece
+    {
+        if(sayi < dugumPtr->deger)//dugumPtr'nin degeri sayidan büyükse
+        {
+          if(dugumPtr->sol)//
+            dugumPtr= dugumPtr->sol;//dugumPtr'ye dugumPtr'nin sol değerini ata.
+          else//değilse
+          {
+            dugumPtr->sol =yenidugum;//dugumPtr'in sol değerine yenidugum atıyoruz.
+            cout << "Eklenen Sayı: " << endl;
+            break;//koşul sağlanırsa dur.
+          }
+           
+        }
+        else if (sayi > dugumPtr->deger)//sayi  dugumPtr'nin degerinden büyükse
+        {
+            if(dugumPtr->sag)
+              dugumPtr = dugumPtr->sag;//duguöPtr'ye dugumPtr'nin sağ degerini ata.
+            else{
+              dugumPtr->sag = yenidugum;//dugumPtr'nin sağ değerine yenidugumu atadık.
+               cout << "Eklenen Sayı: " << endl;
+              break; //koşul sağlanırsa dur.
+            }   
+        }//else if sonu
+        else
+        {
+          sayac--;
+          cout<<"Agacta deger iki defa bulundu ";//mesajı ekranı yazdırıyoruz.
+          break;
+        }
+    }//while sonu
+  }//else sonu
+}//fonksiyon sonu
+void IkiliAgac::InOrderDolasim(Agacdugum *dugumPtr) //inorder elemanları yazdırmak için kullanılan fonksiyon.
+{//sol-kök-sağ
+  if(dugumPtr)
+  {
+    InOrderDolasim(dugumPtr->sol);//sol kökü almak için foksiyon bir daha çağırılır.
+    cout<<dugumPtr->deger<<endl;//dugumPtr'nin degeri ekrana yazdırılır.
+    InOrderDolasim(dugumPtr->sag);//sağ kökü almak için foksiyon bir daha çağırılır.
+  }
+}   
+void IkiliAgac::PreOrderDolasim(Agacdugum *dugumPtr) //preorder elemanları yazdırmak için kullanılan fonksiyon.
+{//kök-sol-sağ
+if(dugumPtr)
+  {
+    cout<<dugumPtr->deger<<endl;//dugumPtr'nin degeri ekrana yazılır.
+    PreOrderDolasim(dugumPtr->sol);//sol kökü almak için foksiyon bir daha çağırılır.
+    PreOrderDolasim(dugumPtr->sag);//sağ kökü almak için foksiyon bir daha çağırılır.
+  }
+}
+void IkiliAgac::PostOrderDolasim(Agacdugum *dugumPtr)//postorder elemanları yazdırmak için kullanılan fonksiyon.
+{//sol-sağ-kök
+if(dugumPtr)
+  {
+    PostOrderDolasim(dugumPtr->sol);//sol kökü almak için foksiyon bir daha çağırılır.
+    PostOrderDolasim(dugumPtr->sag);//sağ kökü almak için foksiyon bir daha çağırılır.
+    cout<<dugumPtr->deger<<endl;//dugumPtr'nin degeri ekrana yazılır.
+  }
+}
+//*****
+bool IkiliAgac::DugumAra(int sayi)//dugumAramak için foksiyonun içini dolduruyoruz.
+{
+Agacdugum *dugumPtr = kok;//pointere kok değerini atıyoruz.
+while (dugumPtr)//döngü ile kontrol sağlıyoruz
+{
+if (dugumPtr->deger == sayi)//dugumPtr'nin degeri sayiya eşitse:
+return true;//true değerini döndür
+else if (sayi < dugumPtr->deger)//dugumPtr'nin degeri sayıdan büyükse
+dugumPtr = dugumPtr->sol;//dugumPtr'nin sol degerini dugumPtr'e ata.
+else
+dugumPtr = dugumPtr->sag; //dugumPtr'nin sağ degerini dugumPtr'ye atıyoruz.
+}
+return false;//return false değerini döndür.
+}
+//*****
+ void IkiliAgac::Sil(int sayi)//deger silmek için sil fonksiyonu tanımlıyoruz.
+    {
+      DugumSil(sayi, kok);//dugumsil fonksiyonu ile silme işlemini gerçekleştiriyoruz.
+    }
+//****
+void IkiliAgac::DugumSil(int num, Agacdugum *&dugumPtr)
+{//biz bu fonksiyonu sileceğimiz düğüme ulaşmak için kullanacağız
+	//bir düğüm silindiğinde alt ağacı bağlayacağımız için sadece 
+	//Agacdugüm tipinde bir işaretçi değil, 
+	//bu yapıyı tutan işaretçinin adresine işaret ediyoruz
+	//peki düğüme ulaşınca ne yapacağız, tabiki sileceğiz:
+	if (num < dugumPtr->deger)//sayı solda mı diye bakalım
+    DugumSil(num, dugumPtr->sol);
+  else if (num > dugumPtr->deger)//sayi sağda mı diye bakalım
+    DugumSil(num, dugumPtr->sag);
+  else //sayıya ulaştığımızda silme işlemini gerçekleyelim
+    GercekleSil(dugumPtr);
+}
+
+void IkiliAgac::GercekleSil(Agacdugum *&dugumPtr)//gercekle sil fonksiyonun tanımlamasını yapalım.
+{
+  Agacdugum *temp; //temp adında pointer değişkeni oluşturulım.
+  //sol alt ağacı gösterecek olan gecici işaretçi
+  if (dugumPtr == NULL)//deger null'a eşitse
+    cout << "Bos dugumu silemezsin.\n";//mesajı yazdırıyoruz.
+  else if (dugumPtr->sag == NULL) //sağ değer null'a eşitse
+  {
+    temp = dugumPtr;//dugumPtr'yi temp değerine atıyoruz.
+    dugumPtr = dugumPtr->sol; // sol çocuğu yeniden atayalım
+    delete temp;//temp degerini siliyoruz.
+  }//else if sonu
+  else if (dugumPtr->sol == NULL)// sol değer null'a eşitse
+  {
+    temp = dugumPtr;
+    dugumPtr = dugumPtr->sag; // sol çocuğu yeniden atayalım
+    delete temp;//temp değerini siliyoruz.
+  }//else sonu
+  // dugümüm iki çocuğu varsa
+  else
+  {
+    // 1 dügüm sağa taşıyalım.
+    temp = dugumPtr->sag;
+    // sol düğümün sonuna gidelim.
+  while (temp->sol)
+  temp = temp->sol;
+  // Sol altağacı yeniden atayalım.
+  temp->sol = dugumPtr->sol;
+  temp = dugumPtr;
+  // Sağ altağacı yeniden atayalım.
+  dugumPtr = dugumPtr->sag;
+  delete temp;
+  }//else sonu
+}//fonksityon sonu
+HashTablo::HashTablo()//foksiyon tanımlamasını yapıyoruz.
+{
+for(int i=0;i<MAX;i++)//10'a kadar veri elemanlarına null degerini atıyoruz.
+Veri[i]=NULL;
+}
+void HashTablo::Ekle(int Anahtar)//ekle fonsiyonun tanımını yapıyoruz.
+{
+Dugum *pYeni=new Dugum(Anahtar);//pYeni adında pointer tanımlıyoruz.
+int mod=Anahtar%MAX;//mod alma işlemi yapıyoruz.
+if(!Veri[mod])//ilgili hücrede adres varmı diye bakılıyor.
+{
+Veri[mod]=pYeni;//koşul sağlanırsa düğüm var demektir.
+return;
+}
+Dugum* pTemp=Veri[mod];//ilgili adresi pTemp'e atacağız.
+while(pTemp->pSonraki!=NULL)//deger null olana kadar döngü devam edecek.
+  pTemp=pTemp->pSonraki;//pTemp'in pSonraki değerini pTempe atıyoruz.
+pTemp->pSonraki=pYeni;//pYeni değerini pTemp'in pSonraki değerini atıyoruz.
+}
+Dugum* HashTablo::Bul(int Anahtar)//bul adında fonksiyonun tanımı yapıyoruz.
+{
+int mod=Anahtar%MAX;// mod alma işlemini yapıyoruz.
+Dugum* pTemp=Veri[mod];//ilgili adresi pTemp'e atacağız
+while(pTemp!=NULL)//pTemp null olana kadar döngü devam edecek.
+{
+  if(pTemp->Anahtar==Anahtar)///aradığımız anahtar buysa adres dönecek
+    return pTemp;
+  pTemp=pTemp->pSonraki;//pTemp'in pSonraki değerini pTemp'e atıyoruz.
+}
+return NULL;// listede aranan bulunmazsa null değerini döndürüyoruz
+}
+void HashTablo::Sil(int Anahtar)// sil fonksiyonun tanımlamasını yapıyoruz.
+{
+ int mod=Anahtar%MAX;// mod alma işlemini gerçekleştiriyoruz.
+ if(!Veri[mod]) return;//eleman olmadığı durum
+ if(!Veri[mod]->pSonraki)// eleman olduğu durum
+ {
+   if(Veri[mod]->Anahtar==Anahtar)//va olan düğüm aranan düğüm ise silme işlemi gerçekleşir.
+   {
+    delete Veri[mod];//degeri siliyoruz
+    Veri[mod]=NULL;//karışıklık olmaması adına null değeri atıyoruz.
+   }
+  return; // aradığımız düğümse veya değilse her iki durumda da işlemi bitiriyoruz
+
+ }
+if(Veri[mod]->Anahtar==Anahtar)//birden fazla düğüm var ama ilk düğüm aradığımız düğüm ve sileceğiz.
+{//Birden fazla eleman ve düğüm soz konusu
+  Dugum* pDon=Veri[mod]->pSonraki;//silinen düğüme bağlı olan düğüme ulaşıyoruz.
+  delete Veri[mod];//silinen düğüme bağlı olan düğüme gidersek.
+  Veri[mod]=pDon;
+  return;
+}
+////tek bir durum kaldı: aradığımız düğüm arada bir yerde
+Dugum* pTemp=Veri[mod];/// ilk düğümün adresini alıyoruz pTemp içerisine.
+while(pTemp->pSonraki!=NULL)//içi boş olana kadar döngü devam eder
+{
+  if(pTemp->pSonraki->Anahtar==Anahtar)//
+  {
+    Dugum* pDon=pTemp->pSonraki;//dugumun adresini alıyoruz.
+    pTemp->pSonraki=pDon->pSonraki;//sonraki dugume bağlıyoruz.
+    delete pDon;//silmek istenen düğümü siliyoruz.
+    return;//işlemi bitiriyoruz.
+  }
+  pTemp= pTemp->pSonraki;//pTempe adresi atıyoruz
+}
+}
